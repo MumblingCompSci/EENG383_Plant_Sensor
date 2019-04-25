@@ -6,9 +6,9 @@
 #define MEAS_RH         0xE5        // NO HOLD - read Relative Humidity command code
 
 // light related
-#define LIGHT_DATALOW   0xAC         // Data 1 lower regitster
-//#define LIGHT_DATAHIGH  0xAD         // Data 1 uppper register
-#define LIGHT_ADDR      0b0101001   // 7-bit i2c address for the ambient light sensor
+#define LIGHT_DATALOW   0xAC        // Data 1 lower regitster
+//#define LIGHT_DATAHIGH  0xAD      // Data 1 uppper register
+#define LIGHT_ADDR      0x39        // 7-bit i2c address for the ambient light sensor
 #define LIGHT_CONTROL   0xA0        // set light to control register
 #define LIGHT_TIMING    0xA1        // timing register
 
@@ -91,7 +91,7 @@ void main(void)
                     printf("\r\nCollecting Ambient Light Level value...\r\n");
                     
                     lightLevel = readALS();
-                    printf("Ambient Light Level: %i\r\n", lightLevel);
+                    printf("Ambient Light Level: %u\r\n", lightLevel);
                     break;
                     
                 default:
