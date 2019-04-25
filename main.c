@@ -7,9 +7,8 @@
 #define READ_RHT    0xE7        // Read from user register
 
 void printHelp();
-
 void measureRHT();
-void readRHT(uint16_t &rht_value);
+uint16_t readRHT();
 
 uint16_t RHT_value = 0x00;
 
@@ -32,7 +31,7 @@ void main(void)
     printf("\r\n>");
 
     for (;;) {
-        if (EUSART1_DataReady()) {
+        if (EUSART1_DataReady) {
             cmd = EUSART1_Read();
             
             switch(cmd) {
@@ -74,8 +73,8 @@ void measureRHT() {
     
 }
 
-void readRHT(uint16_t &rht_value) {
-    
+uint16_t readRHT() {
+    return 0xFF;
 }
 
 void printHelp() {
