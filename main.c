@@ -10,6 +10,7 @@
 #define LIGHT_DATAHIGH  0xF         // Data 1 uppper register
 #define LIGHT_ADDR      0b0101001   // 7-bit i2c address for the ambient light sensor
 #define LIGHT_CONTROL   0xA0        // set light to control register
+#define LIGHT_TIMING    0xA1        // timing register
 
 void printHelp();
 int16_t measureTemp();
@@ -163,6 +164,18 @@ void turnOnALS() {
     I2C_Wflag = I2C2_MESSAGE_PENDING;
     I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
     while (I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    // tell it we're writing to the timing register
+    data[0] = LIGHT_TIMING;
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    // write to the timing register
+    data[0] = 0x02;
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
 }
 
 void printHelp() {
