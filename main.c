@@ -1,15 +1,20 @@
 #include "mcc_generated_files/mcc.h"
 
-#define TMPHUM_ADDR 0b1000000   // 7-bit i2c address for temp & humidity sensor
-#define MEAS_TEMP   0xE3        // NO HOLD MASTER read temp command code
-#define MEAS_RH     0xE5        // NO HOLD - read Relative Humidity command code
-//#define WRITE_RHT   0xE6        // Write to register
-//#define READ_RHT    0xE7        // Read from user register
+// RHT related
+#define TMPHUM_ADDR     0b1000000   // 7-bit i2c address for temp & humidity sensor
+#define MEAS_TEMP       0xE3        // NO HOLD MASTER read temp command code
+#define MEAS_RH         0xE5        // NO HOLD - read Relative Humidity command code
+
+// light related
+#define LIGHT_DATALOW   0xE         // Data 1 lower regitster
+#define LIGHT_DATAHIGH  0xF         // Data 1 uppper register
+#define LIGHT_ADDR      0b0101001   // 7-bit i2c address for the ambient light sensor
+#define LIGHT_CONTROL   0xA0        // set light to control register
 
 void printHelp();
 int16_t measureTemp();
 int16_t measureRH();
-uint16_t RHT_value = 0x00;
+void turnOnALS();
 
 
 /*
@@ -17,13 +22,19 @@ uint16_t RHT_value = 0x00;
  */
 void main(void)
 {
+    uint16_t RHT_value = 0x00;
     char cmd;
     int16_t temp;
     int16_t relative;
+    int16_t lightLevel;
     // Initialize the device
     SYSTEM_Initialize();
     INTERRUPT_PeripheralInterruptEnable();
     INTERRUPT_GlobalInterruptEnable();
+    
+    // activate ambient light sensor
+    turnOnALS();
+    
     
     printf("Development Board\r\n");
     printf("Plant Monitor Terminal\r\n");
@@ -54,7 +65,7 @@ void main(void)
                     
                 /** READ TEMP */
                 case 't' :
-                    printf("Collecting Temperature value...\r\n");
+                    printf("\r\nCollecting Temperature value...\r\n");
                     RHT_value = measureTemp();
                     
                     printf("Read %X from Temp Sensor\r\n", RHT_value);
@@ -66,13 +77,17 @@ void main(void)
                     break;
                 /** READ Relative Humidity */
                 case 'r' :
-                    printf("Collecting Relative Humidity value...\r\n");
+                    printf("\r\nCollecting Relative Humidity value...\r\n");
                     RHT_value = measureRH();
                     
                     relative = ((125.00*RHT_value)/(65536)) - 6;
                     printf("Estimated Relative Humidity: %i\r\n", relative);
                     
                     break;
+                    
+                /** Read Ambient Light */
+                case 'L' :
+                    printf("\r\nCollecting Ambient Light Level value...\r\n");
                     
                 default:
                     printf("Unknown Key %c\r\n", cmd);
@@ -134,6 +149,22 @@ int16_t measureRH() {
     return value;
 }
 
+void turnOnALS() {
+    uint8_t data[1] = { LIGHT_CONTROL };
+    
+    I2C2_MESSAGE_STATUS I2C_Wflag = I2C2_MESSAGE_PENDING;
+    
+    // tell it we're writing to the control register
+    I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    // write to the control register
+    data[0] = 0x03; //turn sensor on
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while (I2C_Wflag == I2C2_MESSAGE_PENDING);
+}
+
 void printHelp() {
     printf("\r\n--------------------\r\n");
     printf("--------------------\r\n");
@@ -142,6 +173,7 @@ void printHelp() {
     printf("z: clear terminal\r\n");
     printf("r: get relative humidity\r\n");
     printf("t: get temperature\r\n");
+    printf("L: get ambient light level\r\n");
     printf("--------------------\r\n");
 }
 
