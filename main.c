@@ -1,76 +1,96 @@
-/**
-  Generated Main Source File
-
-  Company:
-    Microchip Technology Inc.
-
-  File Name:
-    main.c
-
-  Summary:
-    This is the main file generated using PIC10 / PIC12 / PIC16 / PIC18 MCUs
-
-  Description:
-    This header file provides implementations for driver APIs for all modules selected in the GUI.
-    Generation Information :
-        Product Revision  :  PIC10 / PIC12 / PIC16 / PIC18 MCUs - 1.76
-        Device            :  PIC18F26K22
-        Driver Version    :  2.00
-*/
-
-/*
-    (c) 2018 Microchip Technology Inc. and its subsidiaries. 
-    
-    Subject to your compliance with these terms, you may use Microchip software and any 
-    derivatives exclusively with Microchip products. It is your responsibility to comply with third party 
-    license terms applicable to your use of third party software (including open source software) that 
-    may accompany Microchip software.
-    
-    THIS SOFTWARE IS SUPPLIED BY MICROCHIP "AS IS". NO WARRANTIES, WHETHER 
-    EXPRESS, IMPLIED OR STATUTORY, APPLY TO THIS SOFTWARE, INCLUDING ANY 
-    IMPLIED WARRANTIES OF NON-INFRINGEMENT, MERCHANTABILITY, AND FITNESS 
-    FOR A PARTICULAR PURPOSE.
-    
-    IN NO EVENT WILL MICROCHIP BE LIABLE FOR ANY INDIRECT, SPECIAL, PUNITIVE, 
-    INCIDENTAL OR CONSEQUENTIAL LOSS, DAMAGE, COST OR EXPENSE OF ANY KIND 
-    WHATSOEVER RELATED TO THE SOFTWARE, HOWEVER CAUSED, EVEN IF MICROCHIP 
-    HAS BEEN ADVISED OF THE POSSIBILITY OR THE DAMAGES ARE FORESEEABLE. TO 
-    THE FULLEST EXTENT ALLOWED BY LAW, MICROCHIP'S TOTAL LIABILITY ON ALL 
-    CLAIMS IN ANY WAY RELATED TO THIS SOFTWARE WILL NOT EXCEED THE AMOUNT 
-    OF FEES, IF ANY, THAT YOU HAVE PAID DIRECTLY TO MICROCHIP FOR THIS 
-    SOFTWARE.
-*/
-
 #include "mcc_generated_files/mcc.h"
+
+#define TMPHUM_ADDR 0b1000000   // 7-bit i2c address for temp & humidity sensor
+#define MEAS_TEMP   0xF3        // NO HOLD MASTER read temp command code
+#define MEAS_RH     0xF5        // NO HOLD - read Relative Humidity command code
+#define WRITE_RHT   0xE6        // Write to register
+#define READ_RHT    0xE7        // Read from user register
+
+void printHelp();
+
+void measureRHT();
+void readRHT(uint16_t &rht_value);
+
+uint16_t RHT_value = 0x00;
+
 
 /*
                          Main application
  */
 void main(void)
 {
+    char cmd;
+    
     // Initialize the device
     SYSTEM_Initialize();
+    INTERRUPT_PeripheralInterruptEnable();
+    INTERRUPT_GlobalInterruptEnable();
+    
+    printf("Development Board\r\n");
+    printf("Plant Monitor Terminal\r\n");
+    printf("Component Testing\r\n");
+    printf("\r\n>");
 
-    // If using interrupts in PIC18 High/Low Priority Mode you need to enable the Global High and Low Interrupts
-    // If using interrupts in PIC Mid-Range Compatibility Mode you need to enable the Global and Peripheral Interrupts
-    // Use the following macros to:
-
-    // Enable the Global Interrupts
-    //INTERRUPT_GlobalInterruptEnable();
-
-    // Disable the Global Interrupts
-    //INTERRUPT_GlobalInterruptDisable();
-
-    // Enable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptEnable();
-
-    // Disable the Peripheral Interrupts
-    //INTERRUPT_PeripheralInterruptDisable();
-
-    while (1)
-    {
-        // Add your application code
+    for (;;) {
+        if (EUSART1_DataReady()) {
+            cmd = EUSART1_Read();
+            
+            switch(cmd) {
+                case '?' :
+                    printHelp();
+                    break;
+                case 'z' :
+                    for (int i = 0; i < 40; i++)
+                        printf("\r\n");
+                    break;
+                case 'Z' :
+                    for (int i = 0; i < 40; i++)
+                        printf("\r\n");
+                    RESET();
+                    break;
+                case 'o' :
+                    printf("o:    ok\r\n");
+                    break;
+                    
+                    
+                /** READ TEMP */
+                case 't' :
+                    printf("Collecting Temperature Value...\r\n");
+                    //TODO: measure temp
+                    //TODO: read temp
+                    
+                    
+                    break;
+                /** READ Relative Humidity */
+                default:
+                    printf("Unknown Key %c\r\n", cmd);
+                    break;
+            }
+        }
     }
+}
+
+void measureRHT() {
+    
+}
+
+void readRHT(uint16_t &rht_value) {
+    
+}
+
+void printHelp() {
+    printf("\r\n--------------------\r\n");
+    printf("--------------------\r\n");
+    printf("o: k\r\n");
+    printf("Z: reset processor\r\n");
+    printf("z: clear terminal\r\n");
+    printf("r: get relative humidity\r\n");
+    printf("t: get temperature\r\n");
+    printf("--------------------\r\n");
+}
+
+void TMR0_DefaultInterruptHandler(void) {
+    
 }
 /**
  End of File

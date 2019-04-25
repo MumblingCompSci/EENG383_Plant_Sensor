@@ -2,3 +2,6 @@ Makefile
 MyConfig.mc3
 mcc_generated_files/*
 nbproject/*
+build/*
+dist/*
+
