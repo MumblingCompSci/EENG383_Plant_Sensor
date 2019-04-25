@@ -10,7 +10,7 @@ Part | Status
 :--- | :---
 *Relative Humidity* 			| functional
 *Temperature*					| functional
-*Ambient Light Sensor*			| not started
+*Ambient Light Sensor*			| started
 *Soil Moisture Sensor*			| functional
 *e-ink Display*					| not started
 
