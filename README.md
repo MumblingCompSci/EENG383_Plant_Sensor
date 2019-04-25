@@ -8,9 +8,10 @@ __**Progress**__ :
 
 Part | Status
 :--- | :---
-*Humidity & Temperature Sensor* | started
+*Relative Humidity* 			| functional
+*Temperature*					| functional
 *Ambient Light Sensor*			| not started
-*Soil Moisture Sensor*			| not started
+*Soil Moisture Sensor*			| functional
 *e-ink Display*					| not started
 
 
