@@ -4,7 +4,8 @@ DESCRIPTION HERE
 **Names**:
 Garrett Quintero & Brandon Verkamp
 
-__**Progress**__:
+__**Progress**__ :
+
 Part | Status
 :--- | :---
 *Humidity & Temperature Sensor* | started
