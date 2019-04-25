@@ -7,8 +7,8 @@
 #define READ_RHT    0xE7        // Read from user register
 
 void printHelp();
-void measureRHT();
-uint16_t readRHT();
+uint16_t measureTemp();
+//uint16_t readTemp();
 
 uint16_t RHT_value = 0x00;
 
@@ -55,10 +55,9 @@ void main(void)
                 /** READ TEMP */
                 case 't' :
                     printf("Collecting Temperature Value...\r\n");
-                    //TODO: measure temp
-                    //TODO: read temp
+                    RHT_value = measureTemp();
                     
-                    
+                    printf("Read %x from Temp Sensor\r\n", RHT_value);
                     break;
                 /** READ Relative Humidity */
                 default:
@@ -69,12 +68,28 @@ void main(void)
     }
 }
 
-void measureRHT() {
-    
-}
+uint16_t measureTemp() {
+        uint16_t value;
+    uint8_t data[2] = {MEAS_TEMP};
+    I2C1_MESSAGE_STATUS I2C_Wflag;
 
-uint16_t readRHT() {
-    return 0xFF;
+    I2C_Wflag = I2C1_MESSAGE_PENDING;
+    I2C1_MasterWrite(data, 1, TMPHUM_ADDR, &I2C_Wflag);
+//    while(I2C_Wflag == I2C1_MESSAGE_PENDING);
+
+    
+//    I2C1_MESSAGE_STATUS I2C_Wflag = I2C1_MESSAGE_PENDING;
+    do {
+        printf("Starting read on %x\r\n", TMPHUM_ADDR);
+        I2C1_MasterRead(data, 2, TMPHUM_ADDR, &I2C_Wflag);
+        printf("Current i2c flag : %x", I2C_Wflag);
+    } while(I2C_Wflag == I2C1_MESSAGE_PENDING);
+    
+    value = data[0];
+    value = value << 8;
+    value = value + data[1];
+    
+    return value;
 }
 
 void printHelp() {
