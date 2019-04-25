@@ -6,8 +6,8 @@
 #define MEAS_RH         0xE5        // NO HOLD - read Relative Humidity command code
 
 // light related
-#define LIGHT_DATALOW   0xE         // Data 1 lower regitster
-#define LIGHT_DATAHIGH  0xF         // Data 1 uppper register
+#define LIGHT_DATALOW   0xAC         // Data 1 lower regitster
+//#define LIGHT_DATAHIGH  0xAD         // Data 1 uppper register
 #define LIGHT_ADDR      0b0101001   // 7-bit i2c address for the ambient light sensor
 #define LIGHT_CONTROL   0xA0        // set light to control register
 #define LIGHT_TIMING    0xA1        // timing register
@@ -16,6 +16,7 @@ void printHelp();
 int16_t measureTemp();
 int16_t measureRH();
 void turnOnALS();
+uint16_t readALS();
 
 
 /*
@@ -33,15 +34,14 @@ void main(void)
     INTERRUPT_PeripheralInterruptEnable();
     INTERRUPT_GlobalInterruptEnable();
     
-    // activate ambient light sensor
-    turnOnALS();
-    
-    
     printf("Development Board\r\n");
     printf("Plant Monitor Terminal\r\n");
     printf("Component Testing\r\n");
     printf("\r\n>");
 
+    // activate ambient light sensor
+    turnOnALS();
+    
     for (;;) {
         if (EUSART1_DataReady) {
             cmd = EUSART1_Read();
@@ -89,6 +89,10 @@ void main(void)
                 /** Read Ambient Light */
                 case 'L' :
                     printf("\r\nCollecting Ambient Light Level value...\r\n");
+                    
+                    lightLevel = readALS();
+                    printf("Ambient Light Level: %i\r\n", lightLevel);
+                    break;
                     
                 default:
                     printf("Unknown Key %c\r\n", cmd);
@@ -176,6 +180,36 @@ void turnOnALS() {
     I2C_Wflag = I2C2_MESSAGE_PENDING;
     I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
     while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    // verify the timing register
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterRead(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    if (data[0] == 0x02) printf("Light sensor active\r\n");
+    else printf("Light sensor did not turn on\r\n");
+}
+
+uint16_t readALS() {
+    // tell the sensor to read from data1 lower
+    uint8_t data[2] = { LIGHT_DATALOW, 0x00 };
+    uint16_t value;
+    I2C2_MESSAGE_STATUS I2C_Wflag = I2C2_MESSAGE_PENDING;
+    
+    // tell it we're writing to the DATA1LOW register
+    I2C2_MasterWrite(data, 1, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    //read data
+    I2C_Wflag = I2C2_MESSAGE_PENDING;
+    I2C2_MasterRead(data, 2, LIGHT_ADDR, &I2C_Wflag);
+    while(I2C_Wflag == I2C2_MESSAGE_PENDING);
+    
+    value = data[1];
+    value = value << 8;
+    value = value | data[0];
+    
+    return value;
 }
 
 void printHelp() {
