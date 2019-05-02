@@ -44,8 +44,8 @@ void main(void)
     turnOnALS();
     
     for (;;) {
-        if (EUSART1_DataReady) {
-            cmd = EUSART1_Read();
+        if (EUSART2_DataReady) {
+            cmd = EUSART2_Read();
             
             switch(cmd) {
                 case '?' :
