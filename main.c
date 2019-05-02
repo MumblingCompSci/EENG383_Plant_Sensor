@@ -17,6 +17,7 @@ int16_t measureTemp();
 int16_t measureRH();
 void turnOnALS();
 uint16_t readALS();
+uint8_t readMoisture();
 
 
 /*
@@ -93,7 +94,11 @@ void main(void)
                     lightLevel = readALS();
                     printf("Ambient Light Level: %u\r\n", lightLevel);
                     break;
-                    
+                case 'm':
+                    printf("\r\nReading Soil Moisture...\r\n");
+                    printf("Soil Moisture Sensor Value: %u\r\n", readMoisture());
+                    break;
+
                 default:
                     printf("Unknown Key %c\r\n", cmd);
                     break;
@@ -212,6 +217,11 @@ uint16_t readALS() {
     return value;
 }
 
+uint8_t readMoisture() {
+  ADCON0bits.GO_NOT_DONE = 1;
+  return ADRESH;
+}
+
 void printHelp() {
     printf("\r\n--------------------\r\n");
     printf("--------------------\r\n");
@@ -221,6 +231,7 @@ void printHelp() {
     printf("r: get relative humidity\r\n");
     printf("t: get temperature\r\n");
     printf("L: get ambient light level\r\n");
+    printf("m: get soil moisture\r\n");
     printf("--------------------\r\n");
 }
 
