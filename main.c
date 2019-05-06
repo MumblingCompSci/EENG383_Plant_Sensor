@@ -1,6 +1,8 @@
 /**
- * Read values from moisture, temperature/humidity, and ambient light sensors
- * and send the raw values to a Raspberry Pi over UART
+ * PIC C code for plant monitor
+ *
+ * Wait for transmission from a Raspberry Pi over EUSART2, then read values from moisture, temperature/humidity, 
+ * and ambient light sensors and send the raw values back to the Pi.
  *
  * For this project,
  * Mount PIC board to Raspberry PI headers
