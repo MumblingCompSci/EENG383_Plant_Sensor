@@ -1,3 +1,16 @@
+/**
+ * Read values from moisture, temperature/humidity, and ambient light sensors
+ * and send the raw values to a Raspberry Pi over UART
+ *
+ * For this project,
+ * Mount PIC board to Raspberry PI headers
+ * Connect Moisture Sensor signal line to ADC (AN0)
+ * Connect I2C SDA to RB2
+ * Connect I2C SCL to RB1
+ * Connect all sensors to +3.3V and GND
+ * Attach e-ink display onto ribbon cable attached to stackable header on PIC board (to move it out of the way of other sensor wires)
+ */
+
 #include "mcc_generated_files/mcc.h"
 
 // RHT related
@@ -44,6 +57,7 @@ void main(void) {
 
 
     for (;;) {
+        if(EUSART1_DataReady) RESET();
         if (EUSART2_DataReady) {
             cmd = EUSART2_Read(); // will not be used TODO remove
 
@@ -60,22 +74,22 @@ void main(void) {
             printf("Writing values\r\n");
 
             printf("humidity: %x\r\n", humidity);
-            EUSART2_Write(humidity);
-            //EUSART2_Write(humidity >> 8);
-            //EUSART2_Write(humidity & 0xFF);
+            //EUSART2_Write(humidity);
+            EUSART2_Write(humidity >> 8);
+            EUSART2_Write(humidity & 0xFF);
 
             printf("light: %x\r\n", light);
-            EUSART2_Write(light);
-            //EUSART2_Write(light >> 8);
-            //EUSART2_Write(light & 0xFF);
+            //EUSART2_Write(light);
+            EUSART2_Write(light >> 8);
+            EUSART2_Write(light & 0xFF);
 
             printf("moisture: %x\r\n", moisture);
             EUSART2_Write(moisture);
 
             printf("temperature: %x\r\n", temperature);
-            EUSART2_Write(temperature);
-            //EUSART2_Write(temperature >> 8);
-            //EUSART2_Write(temperature & 0xFF);
+            //EUSART2_Write(temperature);
+            EUSART2_Write(temperature >> 8);
+            EUSART2_Write(temperature & 0xFF);
             
             EUSART2_Write('\n');
 
@@ -203,9 +217,6 @@ uint8_t readMoisture() {
     return ADRESH;
 }
 
-void TMR0_DefaultInterruptHandler(void) {
-
-}
 /**
  End of File
  */
